@@ -1,55 +1,57 @@
+import tkinter as tk
+from tkinter import messagebox
+
 class Calculator:
-    def __init__(self, num1, num2):
-        self.num1 = num1
-        self.num2 = num2
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Calculator")
 
-    def calculator(self):
-        while True:
-            wish = input("Do you need to do calculations? If yes, type 'yes'; otherwise, type 'no': ").strip().lower()
-            if wish == 'no':
-                print("Ok! Bye")
-                break
-            elif wish == 'yes':
-                while True:
-                    print("Let's start calculations")
-                    print("Enter your choice:")
-                    print("1. Addition")
-                    print("2. Subtraction")
-                    print("3. Multiplication")
-                    print("4. Division")
-                    print("5. Modulo Division")
-                    print("6. Exit")
+        # Entry widget for displaying the result
+        self.result_var = tk.StringVar()
+        self.result_entry = tk.Entry(root, textvariable=self.result_var, font=("Arial", 24), bd=10, insertwidth=2, width=14, borderwidth=4)
+        self.result_entry.grid(row=0, column=0, columnspan=4)
 
-                    try:
-                        choice = int(input("Your choice: "))
-                        if choice == 1:
-                            print("ADD =", self.num1 + self.num2)
-                        elif choice == 2:
-                            print("SUB =", self.num1 - self.num2)
-                        elif choice == 3:
-                            print("MUL =", self.num1 * self.num2)
-                        elif choice == 4:
-                            if self.num2 != 0:
-                                print("DIV =", self.num1 / self.num2)
-                            else:
-                                print("Cannot divide by zero.")
-                        elif choice == 5:
-                            print("MODULO DIV =", self.num1 % self.num2)
-                        elif choice == 6:
-                            print("Exiting calculator.")
-                            return
-                        else:
-                            print("INVALID CHOICE. Please try again.")
-                    except ValueError:
-                        print("Please enter a valid number for choice.")
+        # Buttons for the calculator
+        buttons = [
+            '7', '8', '9', '+',
+            '4', '5', '6', '-',
+            '1', '2', '3', '*',
+            'C', '0', '=', '/'
+        ]
+
+        row_val = 1
+        col_val = 0
+        for button in buttons:
+            if button == '=':
+                tk.Button(root, text=button, padx=20, pady=20, command=self.calculate).grid(row=row_val, column=col_val, columnspan=2, sticky="nsew")
+                col_val += 2
+            elif button == 'C':
+                tk.Button(root, text=button, padx=20, pady=20, command=self.clear).grid(row=row_val, column=col_val, sticky="nsew")
+                col_val += 1
             else:
-                print("Invalid input. Please type 'yes' or 'no'.")
+                tk.Button(root, text=button, padx=20, pady=20, command=lambda b=button: self.on_button_click(b)).grid(row=row_val, column=col_val, sticky="nsew")
+                col_val += 1
+
+            if col_val > 3:
+                col_val = 0
+                row_val += 1
+
+    def on_button_click(self, char):
+        current_text = self.result_var.get()
+        new_text = current_text + str(char)
+        self.result_var.set(new_text)
+
+    def clear(self):
+        self.result_var.set("")
+
+    def calculate(self):
+        try:
+            result = eval(self.result_var.get())
+            self.result_var.set(result)
+        except:
+            messagebox.showerror("Error", "Invalid Input")
 
 if __name__ == "__main__":
-    try:
-        num1 = int(input("Enter a number: "))
-        num2 = int(input("Enter another number: "))
-        obj = Calculator(num1, num2)
-        obj.calculator()
-    except ValueError:
-        print("Invalid input. Please enter valid integers.")
+    root = tk.Tk()
+    calculator = Calculator(root)
+    root.mainloop()
